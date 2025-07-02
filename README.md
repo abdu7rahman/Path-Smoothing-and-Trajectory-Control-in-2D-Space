@@ -1,100 +1,177 @@
-# Path Smoothing and Trajectory Control in 2D Space
 
-> A ROS 2 Humble-based simulation project for generating smooth, obstacle-aware trajectories and tracking them using a differential drive robot (TurtleBot3) in Gazebo.
+# 📌 Path Smoothing and Trajectory Control in 2D Space
 
----
-
-## 🚀 Overview
-
-This project demonstrates:
-- Path smoothing using **B-spline** and **Cubic Spline** techniques
-- Obstacle-aware trajectory filtering
-- Time-parameterized trajectory generation
-- Trajectory tracking using a **Pure Pursuit Controller**
-- Real-time RViz visualization for path, robot position, and obstacles
-
-All computations run in **real-time simulation** using `turtlebot3_gazebo` in an empty world.
+> A full-featured ROS 2 Humble simulation project to generate and follow smooth, obstacle-aware paths using a differential-drive robot in Gazebo.
 
 ---
 
-## 🧠 Key Features
+## 🎯 Project Objective
 
-- 🔄 Smooth path generation with selectable spline type (`bspline` or `cubic`)
-- 🧱 Dynamic obstacle avoidance (basic filtering)
-- 🐢 Integration with `turtlebot3_gazebo`
-- 🧭 Real-time marker updates in RViz (path, robot pose, obstacles)
-- 🔧 Param-driven launch configuration (`spline_type`, `start`)
+This project simulates a **2D navigation pipeline** where:
+- A predefined set of waypoints are **smoothed into a continuous trajectory**
+- Basic obstacles are placed in the world
+- The robot intelligently adjusts the path to avoid them
+- A **pure pursuit controller** allows the robot to follow the generated trajectory in real-time
+
+Ideal for robotics learners & researchers interested in **trajectory generation**, **spline interpolation**, **real-time robot control**, and **ROS 2 visualization**.
 
 ---
 
-## 🛠️ Dependencies
+## ✨ Features
 
-Make sure you have the following installed:
+- ✅ **Path Smoothing Algorithms**
+  - B-spline
+  - Cubic spline
+- 🚧 **Obstacle-Aware Path Filtering**
+- 🛣️ **Time-Parameterized Trajectories**
+- 🤖 **Pure Pursuit Controller** for tracking
+- 🧠 **RViz Visualization** of:
+  - Smoothed path
+  - Obstacle markers
+  - Live robot position
+- 🔧 ROS 2 launch parameters (`spline_type`, `start`)
+- 🧪 Spline comparison utility
+- 🧰 Clean modular code
+
+---
+
+## 🧱 Architecture
+
+```
+TurtleBot3 (Gazebo) → Odometry → TrajectoryFollower → CmdVel → Robot
+                               ↘ Markers for path, robot, obstacles → RViz
+```
+
+---
+
+## 🧰 Dependencies
+
+Ensure you have the following:
 
 - ROS 2 Humble
-- `turtlebot3_gazebo` package
-- `rclpy`, `nav_msgs`, `geometry_msgs`, `visualization_msgs`, etc.
-- Python ≥ 3.8
+- `turtlebot3_gazebo`
+- Python 3.8+
+- Common ROS 2 Python message types: `geometry_msgs`, `nav_msgs`, `visualization_msgs`
+
+Install dependencies:
+
+```bash
+sudo apt update
+sudo apt install ros-humble-turtlebot3-gazebo python3-colcon-common-extensions
+```
 
 ---
 
-## 📦 Folder Structure
+## 📁 Folder Structure
 
+```
 path_smoothing_control/
 ├── launch/
-│ └── simulation.launch.py
+│   └── simulation.launch.py
 ├── path_smoothing_control/
-│ ├── main_node.py # ROS 2 Node: Path smoothing + control
-│ ├── controller.py # Pure pursuit tracking controller
-│ ├── visualizer.py # RViz marker generators
-│ ├── obstacle_utils.py # Path filtering based on obstacles
-│ ├── smooth_bsplines.py # B-spline smoothing
-│ ├── smooth_cubic.py # Cubic spline smoothing
-│ ├── trajectory_gen.py # Time-parameterized trajectory
-│ └── compare_splines.py # Script to visualize both spline types
+│   ├── main_node.py
+│   ├── controller.py
+│   ├── visualizer.py
+│   ├── obstacle_utils.py
+│   ├── smooth_bsplines.py
+│   ├── smooth_cubic.py
+│   ├── trajectory_gen.py
+│   ├── compare_splines.py
 ├── package.xml
 ├── setup.py
-└── setup.cfg
-
+├── setup.cfg
+```
 
 ---
 
-## 🔧 Build Instructions
+## 🛠️ Build Instructions
 
-> Clone inside your ROS 2 workspace `src/` folder:
+### 1. Clone and build the package
 
-
+```bash
 cd ~/turtlebot3_ws/src
 git clone https://github.com/abdu7rahman/Path-Smoothing-and-Trajectory-Control-in-2D-Space.git
 cd ..
 colcon build --packages-select path_smoothing_control
 source install/setup.bash
+```
 
-🚀 How to Run
+---
 
-    🐢 Launch TurtleBot3 in Gazebo:
+## 🚀 Running the Simulation
 
+### Step 1: Launch TurtleBot3 in Gazebo
+
+```bash
 ros2 launch turtlebot3_gazebo empty_world.launch.py
+```
 
-    🧠 Launch the simulation node:
+### Step 2: Launch the path smoothing + controller node
 
+Choose either B-spline or Cubic:
+
+```bash
+# B-spline
 ros2 launch path_smoothing_control simulation.launch.py spline_type:=bspline
 
-    ✅ Start the controller:
-
-ros2 param set /trajectory_follower start true
-
-🧪 Test Both Spline Types
-
+# Cubic spline
 ros2 launch path_smoothing_control simulation.launch.py spline_type:=cubic
-ros2 launch path_smoothing_control simulation.launch.py spline_type:=bspline
+```
 
-💡 Future Enhancements
+### Step 3: Start the robot movement
 
-    Smarter obstacle-aware path generation (A*, RRT*, or optimization-based)
+```bash
+ros2 param set /trajectory_follower start true
+```
 
-    Live obstacle detection using sensor input
+Now, the robot will start following the trajectory using the pure pursuit controller.
 
-    GUI slider for real-time spline tuning
+---
 
-    Comparison plots (position error, velocity profiles)
+## 🧪 Optional: Compare Both Splines (Offline)
+
+```bash
+ros2 run path_smoothing_control compare_splines
+```
+
+---
+
+## 🧠 RViz Markers
+
+- Blue Line → Smoothed path
+- Red Cylinders → Obstacles
+- Green Sphere → Live robot position
+
+Ensure RViz is:
+- Set to `odom` as Fixed Frame
+- Subscribed to `/visualization_marker` and `/visualization_marker_array`
+
+---
+
+## ⚙️ Future Enhancements (Maybe)
+
+- Smarter obstacle-aware path generation (A*, RRT*, Bezier-Elastic Band)
+- Live obstacle sensing from LiDAR or depth camera
+- Adaptive lookahead distance
+- PID or MPC-based trajectory following
+- Real-time marker configuration using GUI sliders
+
+---
+
+## 👨‍💻 Author
+
+Developed with 💻 and 🧠 by **Mohammed Abdul Rahman**
+
+GitHub: [abdu7rahman](https://github.com/abdu7rahman)
+
+---
+
+## 📜 License
+
+MIT License — Feel free to fork, modify, or reuse with credits.
+
+---
+
+## ⭐ Star the Repo
+
+If you found this helpful, don’t forget to star it and share it with fellow robotics nerds 🤖✨
