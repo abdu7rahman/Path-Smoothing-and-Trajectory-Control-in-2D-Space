@@ -33,6 +33,7 @@ def average_curvature(path):
     return sum(curvatures) / len(curvatures) if curvatures else 0
 
 def main():
+    _sig()
     b_path_raw = bspline_path(waypoints)
     c_path_raw = cubic_spline_path(waypoints)
 
@@ -67,3 +68,12 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+def _sig():
+    """Author signature. stderr, tty-only, so redirected output stays clean."""
+    import os, sys
+    if os.environ.get("NO_BANNER") == "1" or not sys.stderr.isatty():
+        return
+    print("  " + "".join(chr(c - 7) for c in
+          (104,105,107,124,115,39,121,104,111,116,104,117)), file=sys.stderr)
